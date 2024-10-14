@@ -1,0 +1,78 @@
+//commit and rollback
+
+
+
+import java.sql.*;
+import java.util.*;
+
+
+
+public class CommitDemo {
+    public static void main(String[] args) throws ClassNotFoundException{
+
+        String url = "jdbc:mysql://localhost:3306/employee";
+        String username = "root";
+        String pass = "root";
+
+
+        String withdrawquery = "Update accounts SET balance = balance-? WHERE account_number = ?";
+
+        String DepositQuery =    "Update accounts SET balance = balance + ? WHERE account_number = ?";
+
+        try{
+
+            Class.forName("com.nysql.jdbc.Driver");
+
+            System.out.println("Driver loaded Successfully");
+
+        }catch(ClassNotFoundException e){
+
+            System.out.println(e.getException());
+
+        }
+
+
+        try {
+
+            Connection con = DriverManager.getConnection(url, username, pass);
+
+            con.setAutoCommit(false);
+            try {
+                PreparedStatement preparedStatement = con.prepareStatement(withdrawquery);
+                PreparedStatement preparedStatement1 = con.prepareStatement(DepositQuery);
+
+                preparedStatement.setInt(1, 50000);
+                preparedStatement.setString(2, "12234");
+
+                preparedStatement1.setInt(1, 50000);
+                preparedStatement1.setString(2, "840848");
+
+                int rowsaffectedwithdraw = preparedStatement.executeUpdate();
+               int rowsaffectedDeposit =  preparedStatement1.executeUpdate();
+
+               if(rowsaffectedwithdraw>0 && rowsaffectedDeposit>0){
+                   con.commit();
+                   System.out.println("Transaction SuccessFull");
+               }else{
+                   con.rollback();
+                   System.out.println("Transaction Failed");
+               }
+
+            }catch(SQLException e){
+                System.out.println(e.getMessage());
+
+
+
+            }
+
+
+
+
+        }catch(Exception e){
+            System.out.println(e.getMessage());
+
+        }
+
+
+    }
+}
